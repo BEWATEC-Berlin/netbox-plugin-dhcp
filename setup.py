@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='netbox-plugin-dhcp',
-    version='0.1.1',
+    version='0.1.2',
     description='NetBox plugin for managing Kea DHCP configuration per ConnectServer VM',
     long_description=long_description,
     long_description_content_type='text/markdown',

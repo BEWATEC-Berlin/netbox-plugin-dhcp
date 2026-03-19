@@ -4,6 +4,7 @@ from netbox.views import generic
 from . import models, views
 
 urlpatterns = [
+    path('ajax/connect-server-vrf/<int:vm_id>/', views.ajax_connect_server_vrf, name='ajax_connect_server_vrf'),
     path('dhcp-configs/', views.DHCPConfigurationListView.as_view(), name='dhcpconfiguration_list'),
     path('dhcp-configs/add/', views.DHCPConfigurationEditView.as_view(), name='dhcpconfiguration_add'),
     path('dhcp-configs/<int:pk>/', views.DHCPConfigurationView.as_view(), name='dhcpconfiguration'),
