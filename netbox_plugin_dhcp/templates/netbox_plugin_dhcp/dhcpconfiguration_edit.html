@@ -36,6 +36,14 @@
         if (!value) return null;
         if (typeof value === 'number') return value;
         if (typeof value === 'object' && value.id) return value.id;
+        if (typeof value === 'object' && value.url) {
+            const match = String(value.url).match(/\/(\d+)\/?$/);
+            if (match) return Number(match[1]);
+        }
+        if (typeof value === 'string') {
+            const match = String(value).match(/\/(\d+)\/?$/);
+            if (match) return Number(match[1]);
+        }
         return null;
     }
 
@@ -97,12 +105,14 @@
         const connectServerField = document.getElementById('id_connect_server');
         const vrfField = document.getElementById('id_connect_server_vrf');
         const selectedPrefixField = document.getElementById('id_selected_prefix');
+        const selectedPrefixIdField = document.getElementById('id_selected_prefix_id');
         if (!connectServerField || !vrfField) return;
 
         const vmId = connectServerField.value;
         if (!vmId) {
             vrfField.value = '';
             if (selectedPrefixField) selectedPrefixField.value = '';
+            if (selectedPrefixIdField) selectedPrefixIdField.value = '';
             triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
@@ -116,6 +126,7 @@
         if (String(vrfField.value) !== String(vrfId || '')) {
             vrfField.value = vrfId || '';
             if (selectedPrefixField) selectedPrefixField.value = '';
+            if (selectedPrefixIdField) selectedPrefixIdField.value = '';
             triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
@@ -126,11 +137,22 @@
     function onPrefixChanged() {
         const prefixField = document.getElementById('id_prefix');
         const selectedPrefixField = document.getElementById('id_selected_prefix');
-        if (prefixField && selectedPrefixField) {
+        const selectedPrefixIdField = document.getElementById('id_selected_prefix_id');
+        if (prefixField && selectedPrefixField && selectedPrefixIdField) {
             const option = prefixField.options[prefixField.selectedIndex];
             selectedPrefixField.value = option ? option.text.trim() : '';
+            selectedPrefixIdField.value = prefixField.value || '';
         }
         triggerSelectRefresh('id_address_range');
+    }
+
+    function hideHelperField(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const wrapper = input.closest('.mb-3');
+        if (wrapper) {
+            wrapper.style.display = 'none';
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -148,6 +170,9 @@
         if (prefixField) {
             prefixField.addEventListener('change', onPrefixChanged);
         }
+        hideHelperField('id_connect_server_vrf');
+        hideHelperField('id_selected_prefix');
+        hideHelperField('id_selected_prefix_id');
         updateVrfFromConnectServer();
     });
 })();

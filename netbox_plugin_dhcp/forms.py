@@ -11,7 +11,7 @@ from .models import DHCPConfiguration
 
 class DHCPConfigurationForm(NetBoxModelForm):
     fieldsets = (
-        FieldSet('connect_server', 'connect_server_vrf', 'selected_prefix', name='Assignment'),
+        FieldSet('connect_server', 'connect_server_vrf', 'selected_prefix', 'selected_prefix_id', name='Assignment'),
         FieldSet('default_lease_time', 'max_lease_time', name='Lease'),
         FieldSet('prefix', 'address_range', name='Range'),
         FieldSet('router', 'dns_servers', name='Network Options'),
@@ -27,6 +27,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
     )
     connect_server_vrf = forms.IntegerField(required=False, widget=forms.HiddenInput)
     selected_prefix = forms.CharField(required=False, widget=forms.HiddenInput)
+    selected_prefix_id = forms.IntegerField(required=False, widget=forms.HiddenInput)
     prefix = DynamicModelChoiceField(
         queryset=Prefix.objects.all(),
         label='Prefix',
@@ -42,6 +43,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
             'family': 4,
             'vrf_id': '$connect_server_vrf',
             'parent': '$selected_prefix',
+            'prefix_id': '$selected_prefix_id',
         },
     )
     router = DynamicModelChoiceField(
@@ -92,6 +94,15 @@ class DHCPConfigurationForm(NetBoxModelForm):
 
         self.initial['connect_server_vrf'] = self._vm_vrf_id(vm)
 
+        if not vm:
+            initial_connect_server = self.initial.get('connect_server')
+            if initial_connect_server:
+                if hasattr(initial_connect_server, 'pk'):
+                    vm = initial_connect_server
+                else:
+                    vm = VirtualMachine.objects.filter(pk=initial_connect_server).first()
+                self.initial['connect_server_vrf'] = self._vm_vrf_id(vm)
+
         prefix = self.instance.prefix if self.instance and self.instance.pk else None
         if not prefix and self.is_bound:
             prefix_id = self.data.get('prefix')
@@ -100,6 +111,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
 
         if prefix:
             self.initial['selected_prefix'] = str(prefix.prefix)
+            self.initial['selected_prefix_id'] = prefix.pk
             self.fields['address_range'].queryset = IPRange.objects.filter(
                 vrf_id=prefix.vrf_id,
             )
