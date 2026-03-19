@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                 ('max_lease_time', models.PositiveIntegerField(default=7200, help_text='Maximum lease time in seconds.', verbose_name='Max Lease Time')),
                 ('address_range', models.ForeignKey(help_text='DHCP pool range object used for allocations.', on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_configurations', to='ipam.iprange', verbose_name='Address Range')),
                 ('connect_server', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_configuration', to='virtualization.virtualmachine', verbose_name='ConnectServer')),
-                ('prefix', models.ForeignKey(help_text='Prefix that contains the selected DHCP range.', on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_configurations', to='ipam.prefix', verbose_name='Prefix')),
                 ('router', models.ForeignKey(blank=True, help_text='Optional default gateway/router option.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_router_for', to='ipam.ipaddress', verbose_name='Router')),
             ],
             options={

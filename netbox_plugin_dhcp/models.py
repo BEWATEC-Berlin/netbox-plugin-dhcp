@@ -35,6 +35,8 @@ class DHCPConfiguration(NetBoxModel):
         related_name='dhcp_configurations',
         verbose_name='Prefix',
         help_text='Prefix that contains the selected DHCP range.',
+        null=True,
+        blank=True,
     )
     router = models.ForeignKey(
         to='ipam.IPAddress',
