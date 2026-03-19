@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from netaddr import IPAddress
 from netbox.models import NetBoxModel
 
 
@@ -27,6 +28,13 @@ class DHCPConfiguration(NetBoxModel):
         related_name='dhcp_configurations',
         verbose_name='Address Range',
         help_text='DHCP pool range object used for allocations.',
+    )
+    prefix = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.PROTECT,
+        related_name='dhcp_configurations',
+        verbose_name='Prefix',
+        help_text='Prefix that contains the selected DHCP range.',
     )
     router = models.ForeignKey(
         to='ipam.IPAddress',
@@ -70,3 +78,11 @@ class DHCPConfiguration(NetBoxModel):
 
         if self.router and self.router.address.version != 4:
             raise ValidationError({'router': 'Router must be an IPv4 address.'})
+
+        if self.prefix and self.address_range:
+            if self.prefix.vrf_id != self.address_range.vrf_id:
+                raise ValidationError({'address_range': 'Address range VRF must match the selected prefix VRF.'})
+
+            prefix_network = self.prefix.prefix
+            if IPAddress(self.address_range.start_address) not in prefix_network or IPAddress(self.address_range.end_address) not in prefix_network:
+                raise ValidationError({'address_range': 'Address range must be fully contained in the selected prefix.'})

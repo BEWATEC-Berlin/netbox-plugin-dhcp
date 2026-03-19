@@ -16,6 +16,10 @@
                 <td>{{ dhcp_configuration.address_range|default:"—" }}</td>
             </tr>
             <tr>
+                <th scope="row">Prefix</th>
+                <td>{{ dhcp_configuration.prefix|default:"—" }}</td>
+            </tr>
+            <tr>
                 <th scope="row">Router</th>
                 <td>{{ dhcp_configuration.router|default:"—" }}</td>
             </tr>

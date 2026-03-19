@@ -15,6 +15,7 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
         view_name='plugins-api:netbox_plugin_dhcp-api:dhcpconfiguration-detail'
     )
     connect_server = serializers.SerializerMethodField()
+    prefix = serializers.SerializerMethodField()
     address_range = serializers.SerializerMethodField()
     router = serializers.SerializerMethodField()
     dns_servers = serializers.SerializerMethodField()
@@ -28,6 +29,7 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
             'connect_server',
             'default_lease_time',
             'max_lease_time',
+            'prefix',
             'address_range',
             'router',
             'dns_servers',
@@ -43,6 +45,15 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
                 'id': obj.connect_server.id,
                 'name': obj.connect_server.name,
                 'url': _build_url(self.context.get('request'), obj.connect_server),
+            }
+        return None
+
+    def get_prefix(self, obj):
+        if obj.prefix:
+            return {
+                'id': obj.prefix.id,
+                'display': str(obj.prefix),
+                'url': _build_url(self.context.get('request'), obj.prefix),
             }
         return None
 

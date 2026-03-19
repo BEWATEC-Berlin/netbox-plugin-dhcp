@@ -45,6 +45,7 @@
         const vmId = connectServerField.value;
         if (!vmId) {
             vrfField.value = '';
+            triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
             triggerSelectRefresh('id_dns_servers');
@@ -56,19 +57,31 @@
 
         if (String(vrfField.value) !== String(vrfId || '')) {
             vrfField.value = vrfId || '';
+            triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
             triggerSelectRefresh('id_dns_servers');
         }
     }
 
+    function onPrefixChanged() {
+        triggerSelectRefresh('id_address_range');
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const connectServerField = document.getElementById('id_connect_server');
+        const prefixField = document.getElementById('id_prefix');
         if (!connectServerField) return;
 
         connectServerField.addEventListener('change', updateVrfFromConnectServer);
         if (typeof $ !== 'undefined') {
             $(connectServerField).on('select2:select select2:clear', updateVrfFromConnectServer);
+            if (prefixField) {
+                $(prefixField).on('select2:select select2:clear', onPrefixChanged);
+            }
+        }
+        if (prefixField) {
+            prefixField.addEventListener('change', onPrefixChanged);
         }
         updateVrfFromConnectServer();
     });
