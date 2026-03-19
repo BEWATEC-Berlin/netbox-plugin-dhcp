@@ -1,0 +1,33 @@
+{% load helpers %}
+<div class="card">
+    <h5 class="card-header d-flex justify-content-between align-items-center">
+        <a href="{% url 'plugins:netbox_plugin_dhcp:dhcpconfiguration_list' %}">DHCP Configuration</a>
+        {% if object.role and object.role.slug == 'connectserver' and not dhcp_configuration %}
+        <a href="{% url 'plugins:netbox_plugin_dhcp:dhcpconfiguration_add' %}?connect_server={{ object.pk }}" class="btn btn-sm btn-primary">
+            <i class="mdi mdi-plus-thick"></i>
+        </a>
+        {% endif %}
+    </h5>
+    <div class="card-body">
+        {% if dhcp_configuration %}
+        <table class="table table-hover attr-table">
+            <tr>
+                <th scope="row"><a href="{{ dhcp_configuration.get_absolute_url }}">{{ dhcp_configuration }}</a></th>
+                <td>{{ dhcp_configuration.range_start }} - {{ dhcp_configuration.range_end }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Router</th>
+                <td>{{ dhcp_configuration.router }}</td>
+            </tr>
+            <tr>
+                <th scope="row">DNS</th>
+                <td>{{ dhcp_configuration.dns_servers }}</td>
+            </tr>
+        </table>
+        {% elif object.role and object.role.slug == 'connectserver' %}
+        <p class="text-muted">No DHCP configuration assigned.</p>
+        {% else %}
+        <p class="text-muted">DHCP configuration is only available for VMs with role connectserver.</p>
+        {% endif %}
+    </div>
+</div>

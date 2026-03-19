@@ -1,0 +1,63 @@
+{% extends 'generic/object.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">Assignment</h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">ConnectServer</th>
+                        <td>
+                            {% if object.connect_server %}
+                            <a href="{{ object.connect_server.get_absolute_url }}">{{ object.connect_server }}</a>
+                            {% else %}
+                            <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h5 class="card-header">Lease</h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Default Lease Time</th>
+                        <td>{{ object.default_lease_time }} seconds</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Max Lease Time</th>
+                        <td>{{ object.max_lease_time }} seconds</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">Network Options</h5>
+            <div class="card-body">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">Range</th>
+                        <td>{{ object.range_start }} - {{ object.range_end }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Router</th>
+                        <td>{{ object.router }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">DNS Servers</th>
+                        <td>{{ object.dns_servers }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
