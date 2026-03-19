@@ -9,7 +9,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('virtualization', '0001_initial'),
+        ('ipam', '__first__'),
+        ('virtualization', '__first__'),
     ]
 
     operations = [
@@ -22,16 +23,19 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict)),
                 ('default_lease_time', models.PositiveIntegerField(default=3600, help_text='Default lease time in seconds.', verbose_name='Default Lease Time')),
                 ('max_lease_time', models.PositiveIntegerField(default=7200, help_text='Maximum lease time in seconds.', verbose_name='Max Lease Time')),
-                ('range_start', models.GenericIPAddressField(help_text='First IP address in the DHCP pool range.', protocol='IPv4', verbose_name='Range Start')),
-                ('range_end', models.GenericIPAddressField(help_text='Last IP address in the DHCP pool range.', protocol='IPv4', verbose_name='Range End')),
-                ('router', models.GenericIPAddressField(help_text='Default gateway/router option.', protocol='IPv4', verbose_name='Router')),
-                ('dns_servers', models.CharField(default='1.1.1.1,8.8.8.8', help_text='Comma-separated DNS server IPv4 addresses.', max_length=512, verbose_name='DNS Servers')),
+                ('address_range', models.ForeignKey(help_text='DHCP pool range object used for allocations.', on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_configurations', to='ipam.iprange', verbose_name='Address Range')),
                 ('connect_server', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_configuration', to='virtualization.virtualmachine', verbose_name='ConnectServer')),
+                ('router', models.ForeignKey(blank=True, help_text='Optional default gateway/router option.', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='dhcp_router_for', to='ipam.ipaddress', verbose_name='Router')),
             ],
             options={
                 'verbose_name': 'DHCP Configuration',
                 'verbose_name_plural': 'DHCP Configurations',
                 'ordering': ['connect_server'],
             },
+        ),
+        migrations.AddField(
+            model_name='dhcpconfiguration',
+            name='dns_servers',
+            field=models.ManyToManyField(blank=True, help_text='Optional DNS server IP objects.', related_name='dhcp_dns_for', to='ipam.ipaddress', verbose_name='DNS Servers'),
         ),
     ]

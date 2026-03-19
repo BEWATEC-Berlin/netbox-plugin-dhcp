@@ -1,0 +1,77 @@
+{% extends 'generic/object_edit.html' %}
+
+{% block javascript %}
+{{ block.super }}
+<script>
+(function () {
+    async function fetchVirtualMachine(id) {
+        const response = await fetch(`/api/virtualization/virtual-machines/${id}/`);
+        if (!response.ok) {
+            return null;
+        }
+        return await response.json();
+    }
+
+    function extractVrfId(vmData) {
+        if (!vmData) return '';
+
+        const primaryIp4 = vmData.primary_ip4;
+        if (primaryIp4 && primaryIp4.vrf) {
+            return typeof primaryIp4.vrf === 'object' ? primaryIp4.vrf.id : primaryIp4.vrf;
+        }
+
+        const primaryIp = vmData.primary_ip;
+        if (primaryIp && primaryIp.vrf) {
+            return typeof primaryIp.vrf === 'object' ? primaryIp.vrf.id : primaryIp.vrf;
+        }
+
+        return '';
+    }
+
+    function triggerSelectRefresh(id) {
+        const field = document.getElementById(id);
+        if (!field) return;
+        field.value = null;
+        if (typeof $ !== 'undefined') {
+            $(field).val(null).trigger('change');
+        }
+    }
+
+    async function updateVrfFromConnectServer() {
+        const connectServerField = document.getElementById('id_connect_server');
+        const vrfField = document.getElementById('id_connect_server_vrf');
+        if (!connectServerField || !vrfField) return;
+
+        const vmId = connectServerField.value;
+        if (!vmId) {
+            vrfField.value = '';
+            triggerSelectRefresh('id_address_range');
+            triggerSelectRefresh('id_router');
+            triggerSelectRefresh('id_dns_servers');
+            return;
+        }
+
+        const vmData = await fetchVirtualMachine(vmId);
+        const vrfId = extractVrfId(vmData);
+
+        if (String(vrfField.value) !== String(vrfId || '')) {
+            vrfField.value = vrfId || '';
+            triggerSelectRefresh('id_address_range');
+            triggerSelectRefresh('id_router');
+            triggerSelectRefresh('id_dns_servers');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const connectServerField = document.getElementById('id_connect_server');
+        if (!connectServerField) return;
+
+        connectServerField.addEventListener('change', updateVrfFromConnectServer);
+        if (typeof $ !== 'undefined') {
+            $(connectServerField).on('select2:select select2:clear', updateVrfFromConnectServer);
+        }
+        updateVrfFromConnectServer();
+    });
+})();
+</script>
+{% endblock javascript %}

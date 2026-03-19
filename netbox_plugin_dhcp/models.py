@@ -1,5 +1,3 @@
-import ipaddress
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -23,26 +21,28 @@ class DHCPConfiguration(NetBoxModel):
         verbose_name='Max Lease Time',
         help_text='Maximum lease time in seconds.',
     )
-    range_start = models.GenericIPAddressField(
-        protocol='IPv4',
-        verbose_name='Range Start',
-        help_text='First IP address in the DHCP pool range.',
+    address_range = models.ForeignKey(
+        to='ipam.IPRange',
+        on_delete=models.PROTECT,
+        related_name='dhcp_configurations',
+        verbose_name='Address Range',
+        help_text='DHCP pool range object used for allocations.',
     )
-    range_end = models.GenericIPAddressField(
-        protocol='IPv4',
-        verbose_name='Range End',
-        help_text='Last IP address in the DHCP pool range.',
-    )
-    router = models.GenericIPAddressField(
-        protocol='IPv4',
+    router = models.ForeignKey(
+        to='ipam.IPAddress',
+        on_delete=models.PROTECT,
+        related_name='dhcp_router_for',
         verbose_name='Router',
-        help_text='Default gateway/router option.',
+        help_text='Optional default gateway/router option.',
+        null=True,
+        blank=True,
     )
-    dns_servers = models.CharField(
-        max_length=512,
-        default='1.1.1.1,8.8.8.8',
+    dns_servers = models.ManyToManyField(
+        to='ipam.IPAddress',
+        related_name='dhcp_dns_for',
         verbose_name='DNS Servers',
-        help_text='Comma-separated DNS server IPv4 addresses.',
+        help_text='Optional DNS server IP objects.',
+        blank=True,
     )
 
     class Meta:
@@ -68,8 +68,5 @@ class DHCPConfiguration(NetBoxModel):
             if self.default_lease_time > self.max_lease_time:
                 raise ValidationError({'default_lease_time': 'Default lease time must be less than or equal to max lease time.'})
 
-        if self.range_start and self.range_end:
-            start_ip = ipaddress.IPv4Address(self.range_start)
-            end_ip = ipaddress.IPv4Address(self.range_end)
-            if start_ip > end_ip:
-                raise ValidationError({'range_start': 'Range start must be less than or equal to range end.'})
+        if self.router and self.router.address.version != 4:
+            raise ValidationError({'router': 'Router must be an IPv4 address.'})

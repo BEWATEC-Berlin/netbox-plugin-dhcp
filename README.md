@@ -10,9 +10,9 @@ Each DHCP configuration is assigned to exactly one VM with role `connectserver`.
 Configurable values include:
 - default lease time
 - max lease time
-- DHCP range (start/end)
-- router (gateway)
-- DNS servers
+- DHCP range (from IP ranges)
+- router (gateway, optional, from IP addresses)
+- DNS servers (optional, from IP addresses)
 
 ## Features
 
@@ -63,10 +63,10 @@ In VM-related rendering logic, use the assigned object (if present):
 cfg = vm.dhcp_configuration
 
 kea_subnet = {
-	"pools": [{"pool": f"{cfg.range_start} - {cfg.range_end}"}],
+	"pools": [{"pool": str(cfg.address_range)}],
 	"option-data": [
-		{"name": "routers", "data": cfg.router},
-		{"name": "domain-name-servers", "data": cfg.dns_servers},
+		{"name": "routers", "data": str(cfg.router.address.ip) if cfg.router else None},
+		{"name": "domain-name-servers", "data": ",".join(str(dns.address.ip) for dns in cfg.dns_servers.all()) if cfg.dns_servers.exists() else None},
 	],
 	"valid-lifetime": cfg.default_lease_time,
 	"max-valid-lifetime": cfg.max_lease_time,

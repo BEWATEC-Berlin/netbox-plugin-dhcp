@@ -16,6 +16,7 @@ class DHCPConfigurationView(generic.ObjectView):
 class DHCPConfigurationEditView(generic.ObjectEditView):
     queryset = models.DHCPConfiguration.objects.all()
     form = forms.DHCPConfigurationForm
+    template_name = 'netbox_plugin_dhcp/dhcpconfiguration_edit.html'
 
 
 class DHCPConfigurationDeleteView(generic.ObjectDeleteView):

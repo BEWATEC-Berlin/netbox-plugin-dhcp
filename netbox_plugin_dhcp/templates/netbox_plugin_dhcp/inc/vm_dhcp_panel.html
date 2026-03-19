@@ -13,15 +13,23 @@
         <table class="table table-hover attr-table">
             <tr>
                 <th scope="row"><a href="{{ dhcp_configuration.get_absolute_url }}">{{ dhcp_configuration }}</a></th>
-                <td>{{ dhcp_configuration.range_start }} - {{ dhcp_configuration.range_end }}</td>
+                <td>{{ dhcp_configuration.address_range|default:"—" }}</td>
             </tr>
             <tr>
                 <th scope="row">Router</th>
-                <td>{{ dhcp_configuration.router }}</td>
+                <td>{{ dhcp_configuration.router|default:"—" }}</td>
             </tr>
             <tr>
                 <th scope="row">DNS</th>
-                <td>{{ dhcp_configuration.dns_servers }}</td>
+                <td>
+                    {% if dhcp_configuration.dns_servers.exists %}
+                        {% for dns in dhcp_configuration.dns_servers.all %}
+                            {{ dns }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
             </tr>
         </table>
         {% elif object.role and object.role.slug == 'connectserver' %}

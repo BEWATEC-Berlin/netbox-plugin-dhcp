@@ -45,15 +45,35 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">Range</th>
-                        <td>{{ object.range_start }} - {{ object.range_end }}</td>
+                        <td>
+                            {% if object.address_range %}
+                            <a href="{{ object.address_range.get_absolute_url }}">{{ object.address_range }}</a>
+                            {% else %}
+                            <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row">Router</th>
-                        <td>{{ object.router }}</td>
+                        <td>
+                            {% if object.router %}
+                            <a href="{{ object.router.get_absolute_url }}">{{ object.router }}</a>
+                            {% else %}
+                            <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row">DNS Servers</th>
-                        <td>{{ object.dns_servers }}</td>
+                        <td>
+                            {% if object.dns_servers.exists %}
+                                {% for dns in object.dns_servers.all %}
+                                    <a href="{{ dns.get_absolute_url }}">{{ dns }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                            <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 </table>
             </div>

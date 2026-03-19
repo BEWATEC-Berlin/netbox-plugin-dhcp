@@ -6,11 +6,8 @@ from .models import DHCPConfiguration
 
 class DHCPConfigurationTable(NetBoxTable):
     connect_server = tables.Column(linkify=True)
-    range = tables.Column(accessor='range_start', verbose_name='Range', orderable=False)
+    address_range = tables.Column(linkify=True, verbose_name='Range')
     actions = columns.ActionsColumn()
-
-    def render_range(self, record):
-        return f'{record.range_start} - {record.range_end}'
 
     class Meta(NetBoxTable.Meta):
         model = DHCPConfiguration
@@ -20,9 +17,8 @@ class DHCPConfigurationTable(NetBoxTable):
             'connect_server',
             'default_lease_time',
             'max_lease_time',
-            'range',
+            'address_range',
             'router',
-            'dns_servers',
             'created',
             'last_updated',
             'actions',
@@ -32,7 +28,7 @@ class DHCPConfigurationTable(NetBoxTable):
             'connect_server',
             'default_lease_time',
             'max_lease_time',
-            'range',
+            'address_range',
             'router',
             'actions',
         )

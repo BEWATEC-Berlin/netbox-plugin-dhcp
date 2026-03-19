@@ -15,6 +15,9 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
         view_name='plugins-api:netbox_plugin_dhcp-api:dhcpconfiguration-detail'
     )
     connect_server = serializers.SerializerMethodField()
+    address_range = serializers.SerializerMethodField()
+    router = serializers.SerializerMethodField()
+    dns_servers = serializers.SerializerMethodField()
 
     class Meta:
         model = DHCPConfiguration
@@ -25,8 +28,7 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
             'connect_server',
             'default_lease_time',
             'max_lease_time',
-            'range_start',
-            'range_end',
+            'address_range',
             'router',
             'dns_servers',
             'created',
@@ -43,3 +45,31 @@ class DHCPConfigurationSerializer(NetBoxModelSerializer):
                 'url': _build_url(self.context.get('request'), obj.connect_server),
             }
         return None
+
+    def get_address_range(self, obj):
+        if obj.address_range:
+            return {
+                'id': obj.address_range.id,
+                'display': str(obj.address_range),
+                'url': _build_url(self.context.get('request'), obj.address_range),
+            }
+        return None
+
+    def get_router(self, obj):
+        if obj.router:
+            return {
+                'id': obj.router.id,
+                'display': str(obj.router),
+                'url': _build_url(self.context.get('request'), obj.router),
+            }
+        return None
+
+    def get_dns_servers(self, obj):
+        return [
+            {
+                'id': dns.id,
+                'display': str(dns),
+                'url': _build_url(self.context.get('request'), dns),
+            }
+            for dns in obj.dns_servers.all()
+        ]
