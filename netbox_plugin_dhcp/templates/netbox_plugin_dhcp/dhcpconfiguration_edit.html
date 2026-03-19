@@ -4,6 +4,18 @@
 {{ block.super }}
 <script>
 (function () {
+    function ensureHiddenInput(form, id, name) {
+        let input = document.getElementById(id);
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = id;
+            input.name = name;
+            form.appendChild(input);
+        }
+        return input;
+    }
+
     async function fetchIpAddress(id) {
         const response = await fetch(`/api/ipam/ip-addresses/${id}/`);
         if (!response.ok) {
@@ -36,6 +48,7 @@
         if (!value) return null;
         if (typeof value === 'number') return value;
         if (typeof value === 'object' && value.id) return value.id;
+        if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value);
         if (typeof value === 'object' && value.url) {
             const match = String(value.url).match(/\/(\d+)\/?$/);
             if (match) return Number(match[1]);
@@ -156,6 +169,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        if (!form) return;
+
+        ensureHiddenInput(form, 'id_connect_server_vrf', 'connect_server_vrf');
+        ensureHiddenInput(form, 'id_selected_prefix', 'selected_prefix');
+        ensureHiddenInput(form, 'id_selected_prefix_id', 'selected_prefix_id');
+
         const connectServerField = document.getElementById('id_connect_server');
         const prefixField = document.getElementById('id_prefix');
         if (!connectServerField) return;
@@ -170,9 +190,6 @@
         if (prefixField) {
             prefixField.addEventListener('change', onPrefixChanged);
         }
-        hideHelperField('id_connect_server_vrf');
-        hideHelperField('id_selected_prefix');
-        hideHelperField('id_selected_prefix_id');
         updateVrfFromConnectServer();
     });
 })();

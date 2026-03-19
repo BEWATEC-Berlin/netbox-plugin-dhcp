@@ -11,7 +11,7 @@ from .models import DHCPConfiguration
 
 class DHCPConfigurationForm(NetBoxModelForm):
     fieldsets = (
-        FieldSet('connect_server', 'connect_server_vrf', 'selected_prefix', 'selected_prefix_id', name='Assignment'),
+        FieldSet('connect_server', name='Assignment'),
         FieldSet('default_lease_time', 'max_lease_time', name='Lease'),
         FieldSet('prefix', 'address_range', name='Range'),
         FieldSet('router', 'dns_servers', name='Network Options'),
