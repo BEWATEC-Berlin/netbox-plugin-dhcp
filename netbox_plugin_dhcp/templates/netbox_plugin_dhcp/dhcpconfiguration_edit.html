@@ -96,11 +96,13 @@
     async function updateVrfFromConnectServer() {
         const connectServerField = document.getElementById('id_connect_server');
         const vrfField = document.getElementById('id_connect_server_vrf');
+        const selectedPrefixField = document.getElementById('id_selected_prefix');
         if (!connectServerField || !vrfField) return;
 
         const vmId = connectServerField.value;
         if (!vmId) {
             vrfField.value = '';
+            if (selectedPrefixField) selectedPrefixField.value = '';
             triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
@@ -113,6 +115,7 @@
 
         if (String(vrfField.value) !== String(vrfId || '')) {
             vrfField.value = vrfId || '';
+            if (selectedPrefixField) selectedPrefixField.value = '';
             triggerSelectRefresh('id_prefix');
             triggerSelectRefresh('id_address_range');
             triggerSelectRefresh('id_router');
@@ -121,6 +124,12 @@
     }
 
     function onPrefixChanged() {
+        const prefixField = document.getElementById('id_prefix');
+        const selectedPrefixField = document.getElementById('id_selected_prefix');
+        if (prefixField && selectedPrefixField) {
+            const option = prefixField.options[prefixField.selectedIndex];
+            selectedPrefixField.value = option ? option.text.trim() : '';
+        }
         triggerSelectRefresh('id_address_range');
     }
 

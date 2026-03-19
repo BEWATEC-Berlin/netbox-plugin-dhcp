@@ -11,7 +11,7 @@ from .models import DHCPConfiguration
 
 class DHCPConfigurationForm(NetBoxModelForm):
     fieldsets = (
-        FieldSet('connect_server', name='Assignment'),
+        FieldSet('connect_server', 'connect_server_vrf', 'selected_prefix', name='Assignment'),
         FieldSet('default_lease_time', 'max_lease_time', name='Lease'),
         FieldSet('prefix', 'address_range', name='Range'),
         FieldSet('router', 'dns_servers', name='Network Options'),
@@ -26,6 +26,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
         },
     )
     connect_server_vrf = forms.IntegerField(required=False, widget=forms.HiddenInput)
+    selected_prefix = forms.CharField(required=False, widget=forms.HiddenInput)
     prefix = DynamicModelChoiceField(
         queryset=Prefix.objects.all(),
         label='Prefix',
@@ -40,7 +41,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
         query_params={
             'family': 4,
             'vrf_id': '$connect_server_vrf',
-            'parent': '$prefix',
+            'parent': '$selected_prefix',
         },
     )
     router = DynamicModelChoiceField(
@@ -98,6 +99,7 @@ class DHCPConfigurationForm(NetBoxModelForm):
                 prefix = Prefix.objects.filter(pk=prefix_id).first()
 
         if prefix:
+            self.initial['selected_prefix'] = str(prefix.prefix)
             self.fields['address_range'].queryset = IPRange.objects.filter(
                 vrf_id=prefix.vrf_id,
             )
